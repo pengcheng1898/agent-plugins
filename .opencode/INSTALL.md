@@ -11,7 +11,7 @@ Add agent-plugins-for-aws to the `plugin` array in your `opencode.json` (global 
 
 ```json
 {
-  "plugin": ["git+https://github.com/pengcheng1898/agent-plugins.git"]
+  "plugin": ["agent-plugins-for-aws@git+https://github.com/pengcheng1898/agent-plugins.git"]
 }
 ```
 
@@ -25,7 +25,7 @@ Verify by asking: "Deploy my application to AWS" or "Tell me about AWS skills"
 
 ```json
 {
-  "plugin": ["git+https://github.com/pengcheng1898/agent-plugins.git"]
+  "plugin": ["agent-plugins-for-aws@git+https://github.com/pengcheng1898/agent-plugins.git"]
 }
 ```
 
@@ -152,7 +152,7 @@ To pin a specific version:
 
 ```json
 {
-  "plugin": ["git+https://github.com/pengcheng1898/agent-plugins.git#v1.1.0"]
+  "plugin": ["agent-plugins-for-aws@git+https://github.com/pengcheng1898/agent-plugins.git#v1.1.0"]
 }
 ```
 
