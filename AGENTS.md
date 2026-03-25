@@ -26,7 +26,18 @@ Skills are **NOT** slash commands. The agent determines when to use a skill base
 ```
 agent-plugins/
 ├── .claude-plugin/
-│   └── marketplace.json          # Marketplace registry
+│   └── marketplace.json          # Marketplace registry (Claude Code)
+├── .opencode/
+│   └── skills/                   # OpenCode skill symlinks
+│       ├── amazon-location-service -> ../../plugins/amazon-location-service/skills/amazon-location-service/
+│       ├── amplify-workflow -> ../../plugins/aws-amplify/skills/amplify-workflow/
+│       ├── api-gateway -> ../../plugins/aws-serverless/skills/api-gateway/
+│       ├── aws-lambda -> ../../plugins/aws-serverless/skills/aws-lambda/
+│       ├── aws-lambda-durable-functions -> ../../plugins/aws-serverless/skills/aws-lambda-durable-functions/
+│       ├── aws-serverless-deployment -> ../../plugins/aws-serverless/skills/aws-serverless-deployment/
+│       ├── deploy -> ../../plugins/deploy-on-aws/skills/deploy/
+│       ├── dsql -> ../../plugins/databases-on-aws/skills/dsql/
+│       └── gcp-to-aws -> ../../plugins/migration-to-aws/skills/gcp-to-aws/
 ├── .github/
 │   ├── workflows/                # CI (build, lint, security, etc.)
 │   ├── ISSUE_TEMPLATE/
@@ -95,6 +106,7 @@ agent-plugins/
 ├── dprint.json
 ├── .markdownlint-cli2.yaml
 ├── .pre-commit-config.yaml
+├── opencode.json                 # OpenCode configuration
 └── README.md
 ```
 
