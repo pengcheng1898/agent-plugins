@@ -1,0 +1,56 @@
+{
+  "name": "@awslabs/agent-plugins-for-aws",
+  "version": "1.1.0",
+  "description": "AWS Agent Plugins for OpenCode - Skills and MCP servers for building on AWS",
+  "keywords": [
+    "aws",
+    "opencode",
+    "agent",
+    "skills",
+    "mcp",
+    "amplify",
+    "lambda",
+    "serverless",
+    "deploy",
+    "gcp-migration",
+    "location-service"
+  ],
+  "author": "Amazon Web Services",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/awslabs/agent-plugins.git"
+  },
+  "homepage": "https://github.com/awslabs/agent-plugins",
+  "bugs": {
+    "url": "https://github.com/awslabs/agent-plugins/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "opencode": {
+    "plugins": [
+      ".opencode/plugins/agent-plugins-for-aws.ts",
+      ".opencode/plugins/aws-skills-info.ts"
+    ]
+  },
+  "files": [
+    ".opencode",
+    "plugins",
+    "opencode.json",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^0.1.0",
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=0.1.0"
+  }
+}
