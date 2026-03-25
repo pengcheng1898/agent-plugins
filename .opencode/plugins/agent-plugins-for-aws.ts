@@ -2,231 +2,216 @@
  * Agent Plugins for AWS - OpenCode Plugin
  *
  * This plugin provides AWS agent skills and MCP server integrations for OpenCode.
- * It automatically loads all available AWS skills and configures MCP servers
- * for AWS documentation, pricing, and infrastructure as code guidance.
- *
- * Includes custom tools for discovering available skills and MCP servers.
+ * Auto-registers all AWS skills and MCP servers via config hook (no manual setup needed).
+ * Injects plugin context via system prompt transform for agent awareness.
  */
 
-import type { Plugin } from "@opencode-ai/plugin"
-import { tool } from "@opencode-ai/plugin"
-import { z } from "zod"
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { fileURLToPath } from 'url';
+import type { Plugin } from '@opencode-ai/plugin';
 
-// Skills information for custom tools
-const skillsInfo: Record<string, any> = {
-  deploy: {
-    description: "Deploy applications to AWS with architecture recommendations, cost estimates, and IaC",
-    triggers: [
-      "deploy to AWS",
-      "host on AWS",
-      "run this on AWS",
-      "AWS architecture",
-      "estimate AWS cost",
-      "generate infrastructure",
-    ],
-    mcpServers: ["awsknowledge", "awspricing", "awsiac"],
-  },
-  "amazon-location-service": {
-    description: "Add maps, geocoding, routing, and geospatial features with Amazon Location Service",
-    triggers: [
-      "add a map",
-      "geocode an address",
-      "calculate a route",
-      "location-aware app",
-      "Amazon Location Service",
-      "geospatial",
-      "places search",
-    ],
-    mcpServers: ["aws-mcp"],
-  },
-  "amplify-workflow": {
-    description: "Build full-stack apps with AWS Amplify Gen 2 for React, Next.js, Vue, Angular, and more",
-    triggers: [
-      "build Amplify app",
-      "create Amplify project",
-      "add auth to Amplify",
-      "deploy Amplify",
-      "full-stack Amplify",
-    ],
-    mcpServers: ["aws-mcp"],
-  },
-  "api-gateway": {
-    description: "Build, manage, and operate APIs with Amazon API Gateway (REST, HTTP, WebSocket)",
-    triggers: [
-      "API Gateway",
-      "REST API",
-      "HTTP API",
-      "WebSocket API",
-      "custom domain",
-      "Lambda authorizer",
-      "CORS",
-    ],
-    mcpServers: ["aws-mcp"],
-  },
-  "aws-lambda": {
-    description: "Design, build, deploy, test, and debug serverless applications with AWS Lambda",
-    triggers: [
-      "Lambda function",
-      "event source",
-      "serverless application",
-      "EventBridge",
-      "Step Functions",
-      "event-driven architecture",
-    ],
-    mcpServers: ["aws-mcp", "aws-serverless-mcp"],
-  },
-  "aws-lambda-durable-functions": {
-    description: "Build resilient, long-running, multi-step applications with automatic state persistence",
-    triggers: [
-      "lambda durable functions",
-      "workflow orchestration",
-      "state machines",
-      "retry/checkpoint patterns",
-      "saga pattern",
-      "human-in-the-loop",
-    ],
-    mcpServers: ["aws-serverless-mcp"],
-  },
-  "aws-serverless-deployment": {
-    description: "Deploy serverless applications using AWS SAM and AWS CDK",
-    triggers: [
-      "SAM template",
-      "SAM deploy",
-      "CDK serverless",
-      "CDK Lambda",
-      "NodejsFunction",
-      "serverless CI/CD",
-    ],
-    mcpServers: ["aws-serverless-mcp"],
-  },
-  dsql: {
-    description: "Build with Aurora DSQL - serverless, distributed SQL database",
-    triggers: [
-      "Aurora DSQL",
-      "DSQL schema",
-      "distributed SQL",
-      "serverless PostgreSQL",
-      "create DSQL table",
-      "migrate to DSQL",
-    ],
-    mcpServers: ["awsknowledge", "aurora-dsql"],
-  },
-  "gcp-to-aws": {
-    description: "Migrate GCP infrastructure to AWS with resource discovery and architecture mapping",
-    triggers: [
-      "migrate GCP to AWS",
-      "move from GCP",
-      "GCP migration plan",
-      "estimate AWS costs",
-      "GCP infrastructure assessment",
-    ],
-    mcpServers: ["awsknowledge", "awspricing"],
-  },
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// MCP servers information for custom tools
-const mcpServersInfo: Record<string, any> = {
-  awsknowledge: {
-    type: "remote",
-    description: "AWS documentation, architecture guidance, and best practices",
-    url: "https://knowledge-mcp.global.api.aws",
-    enabled: true,
-  },
-  awspricing: {
-    type: "local",
-    description: "Real-time AWS service pricing for cost estimates",
-    command: "uvx awslabs.aws-pricing-mcp-server@latest",
-    enabled: true,
-  },
-  awsiac: {
-    type: "local",
-    description: "IaC best practices for CDK, CloudFormation, and Terraform",
-    command: "uvx awslabs.aws-iac-mcp-server@latest",
-    enabled: true,
-  },
-  "aws-mcp": {
-    type: "local",
-    description: "AWS documentation and service guidance",
-    command: "uvx mcp-proxy-for-aws@latest",
-    enabled: true,
-  },
-  "aws-serverless-mcp": {
-    type: "local",
-    description: "Serverless development guidance and project scaffolding",
-    command: "uvx awslabs.aws-serverless-mcp-server@latest",
-    enabled: true,
-  },
-  "aurora-dsql": {
-    type: "local",
-    description: "Direct database operations for Aurora DSQL",
-    command: "uvx awslabs.aurora-dsql-mcp-server@latest",
-    enabled: false,
-  },
-}
-
-export const AgentPluginsForAWS: Plugin = async ({ project, client, $, directory, worktree }) => {
-  return {
-    // Custom tools for discovering skills and MCP servers
-    tool: {
-      "aws-skills-info": tool({
-        description: "Get information about available AWS skills and their MCP dependencies",
-        args: z.object({
-          skillName: z.string().optional(),
-        }) as any,
-        async execute(args: any) {
-          if (args.skillName) {
-            const skill = skillsInfo[args.skillName]
-            if (skill) {
-              return {
-                skill: args.skillName,
-                ...skill,
-              }
-            } else {
-              return {
-                error: `Skill '${args.skillName}' not found`,
-                availableSkills: Object.keys(skillsInfo),
-              }
-            }
-          }
-
-          return {
-            availableSkills: Object.keys(skillsInfo),
-            skills: skillsInfo,
-            description: "All available AWS skills and their MCP server dependencies",
-          }
-        },
-      }),
-
-      "aws-mcp-servers": tool({
-        description: "List available MCP servers and their status",
-        args: z.object({
-          serverName: z.string().optional(),
-        }) as any,
-        async execute(args: any) {
-          if (args.serverName) {
-            const server = mcpServersInfo[args.serverName]
-            if (server) {
-              return {
-                server: args.serverName,
-                ...server,
-              }
-            } else {
-              return {
-                error: `MCP server '${args.serverName}' not found`,
-                availableServers: Object.keys(mcpServersInfo),
-              }
-            }
-          }
-
-          return {
-            availableServers: Object.keys(mcpServersInfo),
-            servers: mcpServersInfo,
-            description: "All available MCP servers for AWS agent plugins",
-          }
-        },
-      }),
-    },
+// Normalize a path: trim whitespace, expand ~, resolve to absolute
+const normalizePath = (p: string | undefined, homeDir: string): string | null => {
+  if (!p || typeof p !== 'string') return null;
+  let normalized = p.trim();
+  if (!normalized) return null;
+  if (normalized.startsWith('~/')) {
+    normalized = path.join(homeDir, normalized.slice(2));
+  } else if (normalized === '~') {
+    normalized = homeDir;
   }
-}
+  return path.resolve(normalized);
+};
 
-export default AgentPluginsForAWS
+// Discover all skill directories in the plugins folder
+const discoverSkills = (pluginsDir: string): string[] => {
+  const skillPaths: string[] = [];
+  
+  if (!fs.existsSync(pluginsDir)) {
+    return skillPaths;
+  }
+
+  try {
+    const plugins = fs.readdirSync(pluginsDir);
+    
+    for (const plugin of plugins) {
+      const pluginPath = path.join(pluginsDir, plugin);
+      const pluginSkillsDir = path.join(pluginPath, 'skills');
+      
+      if (fs.existsSync(pluginSkillsDir) && fs.statSync(pluginPath).isDirectory()) {
+        const skills = fs.readdirSync(pluginSkillsDir);
+        
+        for (const skill of skills) {
+          const skillPath = path.join(pluginSkillsDir, skill);
+          if (fs.statSync(skillPath).isDirectory()) {
+            skillPaths.push(skillPath);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error discovering skills:', error);
+  }
+  
+  return skillPaths;
+};
+
+// Discover and merge all MCP server configurations from plugin .mcp.json files
+const discoverMcpServers = (pluginsDir: string): Record<string, any> => {
+  const mergedServers: Record<string, any> = {};
+  
+  if (!fs.existsSync(pluginsDir)) {
+    return mergedServers;
+  }
+
+  try {
+    const plugins = fs.readdirSync(pluginsDir);
+    
+    for (const plugin of plugins) {
+      const pluginPath = path.join(pluginsDir, plugin);
+      const mcpConfigPath = path.join(pluginPath, '.mcp.json');
+      
+      if (fs.existsSync(mcpConfigPath) && fs.statSync(pluginPath).isDirectory()) {
+        try {
+          const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf-8'));
+          
+          if (mcpConfig.mcpServers) {
+            // Merge servers, with later plugins potentially overriding earlier ones
+            for (const [serverName, serverConfig] of Object.entries(mcpConfig.mcpServers)) {
+              if (!mergedServers[serverName]) {
+                mergedServers[serverName] = serverConfig;
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error reading .mcp.json for plugin ${plugin}:`, error);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error discovering MCP servers:', error);
+  }
+  
+  return mergedServers;
+};
+
+// Generate bootstrap content with plugin context
+const getBootstrapContent = (pluginsDir: string, configDir: string): string => {
+  const skills = discoverSkills(pluginsDir);
+  const mcpServers = discoverMcpServers(pluginsDir);
+  
+  const skillsList = skills.map(s => {
+    const parts = s.split(path.sep);
+    const skillName = parts[parts.length - 1];
+    const pluginName = parts[parts.length - 3];
+    return `  - ${skillName} (${pluginName})`;
+  }).join('\n');
+
+  const mcpServersList = Object.keys(mcpServers)
+    .map(name => {
+      const config = mcpServers[name];
+      const status = config.disabled ? ' (disabled)' : '';
+      return `  - **${name}**${status}`;
+    })
+    .join('\n');
+
+  return `<IMPORTANT_CONTEXT>
+# Agent Plugins for AWS
+
+You have access to AWS agent plugins that extend your capabilities with specialized skills and MCP servers.
+
+## Available AWS Skills
+
+The following skills are automatically available - OpenCode will match user intent to skill descriptions:
+
+${skillsList}
+
+**Skills location:** \`${configDir}/plugins/agent-plugins-for-aws\`
+
+Use OpenCode's native \`skill\` tool to list and load skills as needed.
+
+## MCP Servers
+
+The following MCP servers are automatically configured from plugins:
+
+${mcpServersList}
+
+These servers provide:
+- **awsknowledge**: AWS documentation, architecture guidance, best practices
+- **awspricing**: Real-time AWS service pricing for cost estimates
+- **awsiac**: IaC best practices (CDK, CloudFormation, Terraform)
+- **aws-mcp**: AWS documentation and service guidance
+- **aws-serverless-mcp**: Serverless development guidance and scaffolding
+- **aurora-dsql**: Direct Aurora DSQL database operations (disabled by default)
+
+## Key Workflow Principles
+
+1. **Auto-trigger**: Skills activate based on user intent, not slash commands
+2. **Cost awareness**: Always estimate and display costs before deployment
+3. **User confirmation**: Never deploy without explicit user approval
+4. **Best practices**: Follow AWS Well-Architected Framework
+5. **Default to dev**: Use development sizing unless user specifies production
+
+## Service Selection Defaults
+
+- Web frameworks → Fargate + ALB (not Lambda - cold starts break WSGI)
+- Static sites/SPAs → Amplify Hosting (not S3+CloudFront - simpler)
+- Databases → Aurora Serverless v2 (scales to near-zero in dev)
+- IaC → CDK TypeScript (most expressive, best IDE support)
+
+</IMPORTANT_CONTEXT>`;
+};
+
+export const AgentPluginsForAWS: Plugin = async ({ directory }) => {
+  const homeDir = os.homedir();
+  const pluginsDir = path.resolve(__dirname, '../../plugins');
+  const envConfigDir = normalizePath(process.env.OPENCODE_CONFIG_DIR, homeDir);
+  const configDir = envConfigDir || path.join(homeDir, '.config/opencode');
+
+  return {
+    // Inject all AWS skill paths and MCP servers into live config
+    // Skills: Auto-discovered from plugins/*/skills/* directories
+    // MCP Servers: Merged from all plugins/*/.mcp.json files
+    config: async (config: any) => {
+      // Initialize skills configuration
+      config.skills = config.skills || {};
+      config.skills.paths = config.skills.paths || [];
+      
+      // Add all discovered skill paths
+      const skillPaths = discoverSkills(pluginsDir);
+      
+      for (const skillPath of skillPaths) {
+        if (!config.skills.paths.includes(skillPath)) {
+          config.skills.paths.push(skillPath);
+        }
+      }
+
+      // Initialize MCP servers configuration
+      config.mcpServers = config.mcpServers || {};
+      
+      // Merge all discovered MCP server configurations
+      const mcpServers = discoverMcpServers(pluginsDir);
+      
+      for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
+        // Only add if not already configured (allows user overrides)
+        if (!config.mcpServers[serverName]) {
+          config.mcpServers[serverName] = serverConfig;
+        }
+      }
+    },
+
+    // Inject plugin context via system prompt transform
+    'experimental.chat.system.transform': async (_input: any, output: any) => {
+      const bootstrap = getBootstrapContent(pluginsDir, configDir);
+      if (bootstrap) {
+        (output.system ||= []).push(bootstrap);
+      }
+    }
+  };
+};
+
+export default AgentPluginsForAWS;
