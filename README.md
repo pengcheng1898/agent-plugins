@@ -94,7 +94,9 @@ You can install the **deploy-on-aws** plugin from the [Cursor Marketplace](https
 
 ### OpenCode
 
-OpenCode automatically discovers and loads all agent skills from this repository. Skills are loaded directly from the `.opencode/skills/` directory without additional setup.
+#### Using Skills and MCP Servers
+
+OpenCode automatically discovers and loads all agent skills and MCP servers from this repository. Skills and MCP servers are loaded directly without additional setup.
 
 **Skills available in OpenCode:**
 - `amazon-location-service` - Amazon Location Service integration
@@ -113,6 +115,74 @@ When working with OpenCode in this repository, simply invoke the skill tool to l
 - Use `gcp-to-aws` skill when migrating from Google Cloud Platform
 
 See [OpenCode skills documentation](https://opencode.ai/docs/skills) for more details on how skills work.
+
+#### Installing as OpenCode Plugin
+
+You can also install this repository as an OpenCode plugin, which provides custom tools and utilities:
+
+**Option 1: From npm (When Published)**
+
+```bash
+npm install -g @awslabs/agent-plugins-for-aws
+```
+
+Then add to your `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@awslabs/agent-plugins-for-aws"
+  ]
+}
+```
+
+**Option 2: From Local Repository**
+
+```bash
+git clone https://github.com/awslabs/agent-plugins.git
+cd agent-plugins
+```
+
+Add to your project's `opencode.json` or `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "file:///path/to/agent-plugins"
+  ]
+}
+```
+
+**Option 3: From GitHub**
+
+Add to your `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "git+https://github.com/awslabs/agent-plugins.git"
+  ]
+}
+```
+
+#### Custom Tools Provided by Plugin
+
+Once installed as a plugin, these custom tools become available:
+
+- **aws-skills-info** - Get information about available AWS skills and their MCP dependencies
+- **aws-mcp-servers** - List available MCP servers and their status
+
+Example usage:
+
+```
+Use the aws-skills-info tool to get details about the deploy skill
+Use the aws-mcp-servers tool to list all enabled MCP servers
+```
+
+For detailed installation and usage instructions, see [OPENCODE_INSTALLATION.md](docs/OPENCODE_INSTALLATION.md).
 
 ## amazon-location-service
 

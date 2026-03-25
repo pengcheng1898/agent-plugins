@@ -3,6 +3,9 @@
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git"
   ],
+  "pluginDirs": [
+    ".opencode/plugins"
+  ],
   "mcp": {
     "awsknowledge": {
       "type": "remote",
