@@ -25,7 +25,6 @@
 
 // Re-export plugins for OpenCode
 export { AgentPluginsForAWS } from "./.opencode/plugins/agent-plugins-for-aws"
-export { AWSSkillsLoaderPlugin } from "./.opencode/plugins/aws-skills-info"
 
 /**
  * Configuration for OpenCode
@@ -59,7 +58,6 @@ export const DEFAULT_CONFIG = {
   version: "1.1.0",
   plugins: [
     ".opencode/plugins/agent-plugins-for-aws.ts",
-    ".opencode/plugins/aws-skills-info.ts",
   ],
   skills: [
     "deploy",

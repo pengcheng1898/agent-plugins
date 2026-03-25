@@ -29,8 +29,7 @@
   "types": "dist/index.d.ts",
   "opencode": {
     "plugins": [
-      ".opencode/plugins/agent-plugins-for-aws.ts",
-      ".opencode/plugins/aws-skills-info.ts"
+      ".opencode/plugins/agent-plugins-for-aws.ts"
     ]
   },
   "files": [
