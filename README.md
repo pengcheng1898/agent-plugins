@@ -116,6 +116,8 @@ When working with OpenCode in this repository, simply invoke the skill tool to l
 
 See [OpenCode skills documentation](https://opencode.ai/docs/skills) for more details on how skills work.
 
+For detailed OpenCode installation instructions, see [.opencode/INSTALL.md](.opencode/INSTALL.md).
+
 #### Installing as OpenCode Plugin
 
 You can also install this repository as an OpenCode plugin, which provides custom tools and utilities:
