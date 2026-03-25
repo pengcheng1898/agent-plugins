@@ -21,7 +21,7 @@ Edit `.opencode/opencode.json` or `~/.config/opencode/opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "git+https://github.com/awslabs/agent-plugins.git"
+    "git+https://github.com/pengcheng1898/agent-plugins.git"
   ]
 }
 ```
@@ -248,7 +248,7 @@ The `@awslabs/agent-plugins-for-aws` npm package includes:
 
 For issues or questions:
 
-- GitHub Issues: https://github.com/awslabs/agent-plugins/issues
+- GitHub Issues: https://github.com/pengcheng1898/agent-plugins/issues
 - OpenCode Discord: https://opencode.ai/discord
 - AWS Support: https://console.aws.amazon.com/support/
 

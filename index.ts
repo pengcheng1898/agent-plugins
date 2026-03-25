@@ -45,6 +45,14 @@ export { AWSSkillsLoaderPlugin } from "./.opencode/plugins/aws-skills-info"
  *   "plugin": ["file:///path/to/agent-plugins"]
  * }
  * ```
+ *
+ * Or from GitHub:
+ *
+ * ```json
+ * {
+ *   "plugin": ["git+https://github.com/pengcheng1898/agent-plugins.git"]
+ * }
+ * ```
  */
 
 export const DEFAULT_CONFIG = {

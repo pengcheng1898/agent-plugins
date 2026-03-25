@@ -19,11 +19,11 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/awslabs/agent-plugins.git"
+    "url": "git@github.com:pengcheng1898/agent-plugins.git"
   },
-  "homepage": "https://github.com/awslabs/agent-plugins",
+  "homepage": "https://github.com/pengcheng1898/agent-plugins",
   "bugs": {
-    "url": "https://github.com/awslabs/agent-plugins/issues"
+    "url": "https://github.com/pengcheng1898/agent-plugins/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -42,15 +42,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "echo 'Plugins are loaded directly from TypeScript files'",
     "prepare": "npm run build"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "^0.1.0",
-    "@types/bun": "latest",
     "typescript": "^5.0.0"
-  },
-  "peerDependencies": {
-    "@opencode-ai/plugin": ">=0.1.0"
   }
 }
