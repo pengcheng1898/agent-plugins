@@ -107,13 +107,62 @@ OpenCode: I'll use the gcp-to-aws skill to help with resource discovery and migr
 
 ## MCP Servers
 
-Some skills have access to MCP servers for real-time information:
+OpenCode includes 6 MCP servers configured for AWS operations. These are automatically available when using this repository:
 
-- **awsknowledge** - AWS documentation and architecture guidance
-- **awspricing** - Real-time AWS service pricing
-- **awsiac** - IaC best practices for CDK/CloudFormation/Terraform
+### Available MCP Servers
 
-These are configured in the plugin's `.mcp.json` files.
+| Server | Type | Purpose | Enabled |
+|--------|------|---------|---------|
+| **awsknowledge** | Remote | AWS documentation and architecture guidance | ✓ Yes |
+| **awspricing** | Local | Real-time AWS service pricing for cost estimates | ✓ Yes |
+| **awsiac** | Local | IaC best practices for CDK/CloudFormation/Terraform | ✓ Yes |
+| **aws-mcp** | Local | AWS service and documentation integration | ✓ Yes |
+| **aws-serverless-mcp** | Local | AWS serverless services support | ✓ Yes |
+| **aurora-dsql** | Local | Aurora DSQL database operations | ✗ No (disabled by default) |
+
+### MCP Configuration
+
+The MCP servers are configured in `opencode.json` under the `mcp` key. Each server has:
+
+- **type**: `remote` (HTTP endpoint) or `local` (executed locally via command)
+- **url** (remote) or **command** (local): Server location or startup command
+- **enabled**: Whether the server is active by default
+- **timeout**: Maximum time to wait for tool responses (in milliseconds)
+- **environment**: Environment variables to pass to the server
+
+### Using MCP Servers in Skills
+
+When you use a skill that requires MCP data, OpenCode automatically connects to the necessary servers. For example:
+
+- **deploy** skill uses `awsknowledge`, `awspricing`, and `awsiac`
+- **amplify-workflow** uses `aws-mcp`
+- **gcp-to-aws** uses `awsknowledge` and `awspricing`
+
+### Enabling Aurora DSQL
+
+The `aurora-dsql` MCP server is disabled by default for security reasons. To enable it:
+
+1. Edit `opencode.json` and change `"enabled": false` to `"enabled": true`
+2. Restart OpenCode
+3. The server will be available for DSQL operations
+
+### Troubleshooting MCP Servers
+
+If an MCP server isn't responding:
+
+1. **Check if it's enabled:**
+   ```bash
+   grep -A 5 '"aurora-dsql"' opencode.json
+   ```
+
+2. **View MCP status:**
+   ```bash
+   opencode mcp list
+   ```
+
+3. **Test connectivity:**
+   - For remote servers: Check internet connection and firewall
+   - For local servers: Ensure `uvx` and Python 3.9+ are installed
 
 ## Troubleshooting
 
